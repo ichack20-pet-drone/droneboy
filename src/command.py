@@ -12,6 +12,22 @@ class Commands:
             'praise':   ["Who's a good boy?"],
             'affectionate': ["I missed you!"]
         }
+        
+        scoldings = {
+            'chide': ["bad drone", "stop it"],
+        }
+
+        movements = {
+            'up': ["move up", "go up", "fly up", "ascend"],
+            'down': ["move down", "go down", "fly down", "descend"],
+            'left': ["move left", "go left", "fly left"]
+            'right': ["move right", "go right", "fly right"]
+        }
+
+        rotations = {
+            'rotate_left': ["turn left", "face left", "look left"],
+            'rotate_right':   ["turn right", "face right", "look right"],
+        }
 
         flip = {
             'frontflip': ['somersault', 'front flip'],
@@ -24,7 +40,7 @@ class Commands:
             'shoot': ['bang']
         }
 
-        self.list = [startup, compliments, flip, play_dead]
+        self.list = [startup, compliments, scoldings, movements, rotations, flip, play_dead]
 
 
 class CommandDetector:
