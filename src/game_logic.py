@@ -3,7 +3,8 @@ import drone_control as dc
 import drone_control.commands as dc_commands
 from command import Commands as PetCommands
 
-START_SATISFACTION = 40
+START_SATISFACTION = 50
+MAX_SATISFACTION = 120
 
 class Session:
     def __init__(self, p_name, command_queue):
@@ -11,24 +12,74 @@ class Session:
         self.command_queue = command_queue
         self.satisfaction = START_SATISFACTION
         self.controller = dc.get_drone_controller(mock=True)
-        self.translate_commands = {
-            "": (dc_commands.Land, 0),
-            "stop": (dc_commands.Stop, 0),
-            "takeoff": (dc_commands.Takeoff, 0),
-            "land": (dc_commands.Land, 0),
-            "forward": (dc_commands.Forward, 0),
-            "backward": (dc_commands.Backward, 0),
-            "left": (dc_commands.Left, 0),
-            "right": (dc_commands.Right, 0),
+        self.pet_commands = PetCommands()
+        self.translate_action = {
+            'takeoff': (dc_commands.Takeoff, 20),
+            'up': (dc_commands.Up, 30),
+            'down': (dc_commands.Down, 30),
+            'left': (dc_commands.Left, 30),
+            'right': (dc_commands.Right, 30),
+            'forward': (dc_commands.Forward, 30),
+            'backward': (dc_commands.Backward, 30),
+            'land': (dc_commands.Land, 0),
+            'rotate_left': (dc_commands.TurnLeft, 40),
+            'rotate_right': (dc_commands.TurnRight, 40),
+            'frontflip': (dc_commands.FlipForward, 50),
+            'backflip': (dc_commands.FlipBackward, 50),
+            'sideflip': (dc_commands.FlipRight, 50)
         }
 
+    def increase_satisfaction(self, magnitude):
+        self.satisfaction += magnitude
+        self.satisfaction = min(self.satisfaction, MAX_SATISFACTION)
+
+    def decrease_satisfaction(self, magnitude):
+        self.satisfaction -= magnitude
+        self.satisfaction = max(self.satisfaction, 0)
+    
+    def multiply_satisfaction(self, scalar):
+        self.satisfaction *= scalar
+        self.satisfaction = min(self.satisfaction, MAX_SATISFACTION)
+
+    def process_basic(self, command):
+        # Don't need to do anything
+        pass
+
+    def process_emotion(self, command):
+        family = self.pet_commands.check_family(command)
+        if family == 'compliments':
+            self.increase_satisfaction(15)
+        if family == 'scoldings':
+            self.multiply_satisfaction(0.8)
+
+    def process_actions(self, command):
+        tr, req = self.translate_action[command]
+        if req <= self.satisfaction:
+            self.controller.send_command(tr())
+        self.decrease_satisfaction(5)
+
+    def process_game(self, command):
+        # TODO: do something later
+        pass
+
+    def command_processing(self, command):
+        family_class = self.pet_commands.check_family_class(command)
+        if family_class == 'basic':
+            self.process_basic(command)
+        if family_class == 'emotion':
+            self.process_emotion(command)
+        if family_class == 'actions':
+            self.process_actions(command)
+        if family_class == 'game':
+            self.process_game(command)
+        print(F'Satisfaction: {self.satisfaction}')
 
     def session_loop(self):
-        input("Are you ready kids?? ")
+        input('Are you ready kids??')
 
         self.start_time = time.time()
-        with self.command_queue.mutex:
-            self.command_queue.clear()
+        # with self.command_queue.mutex:
+        #     self.command_queue.clear()
 
         self.controller.start_flight()
         self.controller.send_command(dc_commands.Takeoff())
@@ -38,14 +89,13 @@ class Session:
                 c = self.command_queue.get(block=False)
             except: 
                 continue # Check me later
-            if c == "stop":
+            if c == 'stop':
                 break
-            tr, req = self.translate_commands[c]
-            if req < self.satisfaction:
-                self.controller.send_command(tr())
             
+            self.command_processing(c)
+        
         self.controller.send_command(dc_commands.Stop())
-        print("Session over")
+        print('Session over')
 
 
 class Game:
@@ -68,7 +118,7 @@ class Game:
     def start_session(self):
         # Starts a session and adds it to the session list once it terminates
         print('start_session')
-        session = Session("Kevin", self.command_queue)
+        session = Session('Kevin', self.command_queue)
         session.session_loop()
         
     def calc_game_stats(self):

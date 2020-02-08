@@ -23,10 +23,14 @@ class Commands:
         }
 
         movements = {
+            'takeoff': 'vocab/takeoff.intent',
             'up': 'vocab/up.intent',
             'down': 'vocab/down.intent',
             'left': 'vocab/left.intent',
-            'right': 'vocab/right.intent'
+            'right': 'vocab/right.intent',
+            'forward': 'vocab/forward.intent',
+            'backward': 'vocab/backward.intent',
+            'land': 'vocab/land.intent',
         }
 
         rotations = {
@@ -49,12 +53,29 @@ class Commands:
                      movements, rotations, flip, play_dead]
         self.family_names = ['startup', 'stop', 'compliments', 'scoldings',
                              'movements', 'rotations', 'flip', 'play_dead']
+        self.family_class = {
+            'startup': 'basic',
+            'stop': 'basic',
+            'compliments': 'emotion',
+            'scoldings': 'emotion',
+            'movements': 'actions',
+            'rotations': 'actions',
+            'flip': 'actions',
+            'play_dead': 'game'
+        }
 
     def check_family(self, command):
         for i in range(len(self.family_list)):
             if command in self.family_list[i]:
                 return self.family_names[i]
         return 'NOT FOUND'
+    
+    def check_family_class(self, command):
+        family = self.check_family(command)
+        if family == 'NOT FOUND':
+            return 'NOT FOUND'
+        else:
+            return self.family_class[family]
 
 
 class CommandDetector:
