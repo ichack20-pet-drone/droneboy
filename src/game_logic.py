@@ -10,7 +10,7 @@ class Session:
         self.player_name = p_name
         self.command_queue = command_queue
         self.satisfaction = START_SATISFACTION
-        self.controller = dc.get_drone_controller()
+        self.controller = dc.get_drone_controller(mock=True)
         self.translate_commands = {
             "": (dc_commands.Land, 0),
             "stop": (dc_commands.Stop, 0),
@@ -22,25 +22,30 @@ class Session:
             "right": (dc_commands.Right, 0),
         }
 
+
     def session_loop(self):
-        input("Are you ready kids?? ") # aye aye
+        input("Are you ready kids?? ")
+
+        self.start_time = time.time()
+        with self.command_queue.mutex:
+            self.command_queue.clear()
+
         self.controller.start_flight()
         self.controller.send_command(dc_commands.Takeoff())
 
-        # End session when this loop is broken, either by command or 3 mins
-        while True:
+        while time.time() - self.start_time <= 180:
             try:
                 c = self.command_queue.get(block=False)
             except: 
                 continue # Check me later
+            if c == "stop":
+                break
             tr, req = self.translate_commands[c]
             if req < self.satisfaction:
                 self.controller.send_command(tr())
-            if c == "stop":
-                break
-
-        
-        print("Flight over")
+            
+        self.controller.send_command(dc_commands.Stop())
+        print("Session over")
 
 
 class Game:
