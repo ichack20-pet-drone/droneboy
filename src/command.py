@@ -20,7 +20,7 @@ class Commands:
         movements = {
             'up': ["move up", "go up", "fly up", "ascend"],
             'down': ["move down", "go down", "fly down", "descend"],
-            'left': ["move left", "go left", "fly left"]
+            'left': ["move left", "go left", "fly left"],
             'right': ["move right", "go right", "fly right"]
         }
 
