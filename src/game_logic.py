@@ -78,8 +78,10 @@ class Session:
         input('Are you ready kids??')
 
         self.start_time = time.time()
-        # with self.command_queue.mutex:
-        #     self.command_queue.clear()
+        
+        # Empty the queue
+        while not self.command_queue.empty():
+            self.command_queue.get()
 
         self.controller.start_flight()
         self.controller.send_command(dc_commands.Takeoff())
