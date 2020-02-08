@@ -7,4 +7,7 @@ class Game:
         self.commands = Commands()
     
     def do_it(self):
-        print(self.command_queue.get())
+        while True:
+            item = self.command_queue.get()
+            print('get')
+            print(item)
