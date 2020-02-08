@@ -8,9 +8,9 @@ from speech_detector import SpeechDetector
 
 commands_queue = q.Queue()
 speech_detector = SpeechDetector(commands_queue)
-game = Game(commands_queue)
 
-game_thread = threading.Thread(target=game.do_it)
+game = Game(commands_queue)
+game_thread = threading.Thread(target=game.game_loop)
 game_thread.start()
 
 speech_thread = threading.Thread(target=speech_detector.start_stream)

@@ -1,5 +1,6 @@
 from padatious import IntentContainer
 
+
 class Commands:
     def __init__(self):
         startup = {
@@ -40,7 +41,16 @@ class Commands:
             'shoot': 'vocab/shoot.intent'
         }
 
-        self.list = [startup, compliments, scoldings, movements, rotations, flip, play_dead]
+        self.family_list = [startup, compliments, scoldings,
+                     movements, rotations, flip, play_dead]
+        self.family_names = ['startup', 'compliments', 'scoldings',
+                             'movements', 'rotations', 'flip', 'play_dead']
+
+    def check_family(self, command):
+        for i in range(len(self.family_list)):
+            if command in self.family_list[i]:
+                return self.family_names[i]
+        return 'NOT FOUND'
 
 
 class CommandDetector:
@@ -49,12 +59,12 @@ class CommandDetector:
         self.commands = Commands()
 
     def add_command(self, commands):
-        for c in self.commands.list:
+        for c in self.commands.family_list:
             for intent, filename in c.items():
                 self.container.load_file(intent, filename)
 
     def train_commands(self):
-        for c in self.commands.list:
+        for c in self.commands.family_list:
             self.add_command(c)
 
         self.container.train()
