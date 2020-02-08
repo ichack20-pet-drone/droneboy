@@ -22,10 +22,13 @@ class DroneController():
                 try:
                     c = self.commands.get(block=False)
                 except:
+                    self.drone.hover()
                     self.drone.smart_sleep(1)
                     continue
+
                 if self.debug:
                     print(c)
+
                 def done():
                     self.drone.safe_land(5)
                     self.flying = False
@@ -37,6 +40,14 @@ class DroneController():
                     4: (lambda: self.drone.fly_direct(0, -10, 0, 0, 1)),  # backward
                     5: (lambda: self.drone.fly_direct(-10, 0, 0, 0, 1)),  # left
                     6: (lambda: self.drone.fly_direct(10, 0, 0, 0, 1)),  # right
+                    7: (lambda: self.drone.fly_direct(0, 0, 0, 10)),  # up
+                    8: (lambda: self.drone.fly_direct(0, 0, 0, -10)),  # down
+                    9: (lambda: self.drone.turn_degrees(-45)),  # turn left
+                    10: (lambda: self.drone.turn_degrees(45)),  # turn right
+                    11: (lambda: self.drone.flip("front")),  # flip forward
+                    12: (lambda: self.drone.flip("back")),  # flip backward
+                    13: (lambda: self.drone.flip("right")),  # flip right
+                    14: (lambda: self.drone.flip("left")),  # flip left
                 }
                 code_to_command[c.command_code]()
                 self.drone.smart_sleep(3)
