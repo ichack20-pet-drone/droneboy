@@ -3,11 +3,6 @@ from pyparrot.Minidrone import Mambo
 from threading import Thread
 
 
-class Command():
-    def __init__(self, command):
-        command_code = 0
-
-
 class DroneController():
 
     def __init__(self, mac_address, debug=False):
