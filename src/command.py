@@ -1,40 +1,43 @@
 from padatious import IntentContainer
 
-def add_stuff(stuff):
-    for intent, phrases in stuff.items():
-        container.add_intent(intent, phrases)
-
 startup = {
-        'awaken' : ['wake up', 'get up', 'rise and shine'],
-        'home' : ["I'm home"]
-        }
+    'awaken': ['wake up', 'get up', 'rise and shine'],
+    'home': ["I'm home"]
+}
 
 compliments = {
-        'greeting': ["Hello", "It's good to see you", "How was your day"],
-        'praise':   ["Who's a good boy?"],
-        'affectionate': ["I missed you!"]
-        }
+    'greeting': ["Hello", "It's good to see you", "How was your day"],
+    'praise':   ["Who's a good boy?"],
+    'affectionate': ["I missed you!"]
+}
 
 flip = {
-        'frontflip' : ['somersault', 'front flip'],
-        'backflip' : ['backflip'],
-        'sideflip' : ['roll over', 'barrel roll']
-        }
-        
+    'frontflip': ['somersault', 'front flip'],
+    'backflip': ['backflip'],
+    'sideflip': ['roll over', 'barrel roll']
+}
+
 play_dead = {
-        'play_dead' : ['play dead', 'crash'],
-        'shoot' : ['bang']
-        }
+    'play_dead': ['play dead', 'crash'],
+    'shoot': ['bang']
+}
 
-container = IntentContainer('intent_cache')
-add_stuff(startup)
-add_stuff(compliments)
-add_stuff(flip)
-add_stuff(play_dead)
-container.train()
+commands = [startup, compliments, flip, play_dead]
 
-print(container.calc_intent("It's nice to see you"))
-print(container.calc_intent("Time to get up!"))
-print(container.calc_intent("do a barrel roll"))
-print(container.calc_intent("boom"))
 
+class CommandDetector:
+    def __init__(self):
+        self.container = IntentContainer('intent_cache')
+
+    def add_command(self, commands):
+        for intent, phrases in commands.items():
+            self.container.add_intent(intent, phrases)
+
+    def train_commands(self):
+        for c in commands:
+            self.add_command(c)
+
+        self.container.train()
+
+    def calc_intent(self, text):
+        return self.container.calc_intent(text)
