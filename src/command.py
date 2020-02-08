@@ -6,7 +6,7 @@ startup = {
 }
 
 compliments = {
-    'greeting': ["Hello", "It's good to see you", "How was your day"],
+    'greeting': ["Hello", "It's good to see you", "How was your day", "hey", "hi"],
     'praise':   ["Who's a good boy?"],
     'affectionate': ["I missed you!"]
 }

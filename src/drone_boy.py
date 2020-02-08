@@ -62,12 +62,6 @@ class SpeechDetector(object):
                 print(transcript + overwrite_chars)
                 print(self.command_detector.calc_intent(transcript + overwrite_chars))
 
-                # Exit recognition if any of the transcribed phrases could be
-                # one of our keywords.
-                if re.search(r'\b(exit|quit)\b', transcript, re.I):
-                    print('Exiting..')
-                    break
-
                 num_chars_printed = 0
 
     def get_text(self):
