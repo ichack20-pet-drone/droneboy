@@ -4,7 +4,6 @@ from threading import Thread
 
 
 class DroneController():
-
     def __init__(self, mac_address, debug=False):
         self.flying = False
         self.commands = Queue()
@@ -17,6 +16,7 @@ class DroneController():
         def fly():
             self.flying = True
             self.drone.connect(5)
+            self.drone.smart_sleep(3)
 
             while self.flying:
                 try:
@@ -24,7 +24,8 @@ class DroneController():
                 except:
                     self.drone.smart_sleep(1)
                     continue
-
+                if self.debug:
+                    print(c)
                 def done():
                     self.drone.safe_land(5)
                     self.flying = False
@@ -38,13 +39,11 @@ class DroneController():
                     6: (lambda: self.drone.fly_direct(10, 0, 0, 0, 1)),  # right
                 }
                 code_to_command[c.command_code]()
-                
+                self.drone.smart_sleep(3)
+
             self.drone.disconnect()
         t = Thread(target=fly)
         t.start()
-
-        return
-        # start flying thread
 
     def send_command(self, command):
         if not self.flying:
