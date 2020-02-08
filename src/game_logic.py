@@ -1,4 +1,5 @@
 import time
+import json
 import drone_control as dc
 import drone_control.commands as dc_commands
 from command import Commands as PetCommands
@@ -120,7 +121,8 @@ class Game:
     def start_session(self):
         # Starts a session and adds it to the session list once it terminates
         print('start_session')
-        session = Session('Kevin', self.command_queue)
+        name = input("Input player name: ")
+        session = Session(name, self.command_queue)
         session.session_loop()
         
     def calc_game_stats(self):

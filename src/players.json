@@ -1,0 +1,38 @@
+
+{
+    "Kelvin": [
+        {
+            "satisfaction" : 60,
+            "commands" : 5,
+            "compliments" : 4,
+            "scoldings" : 5
+        }
+    ],
+
+    "Andi": [
+        {
+            "satisfaction" : 60,
+            "commands" : 5,
+            "compliments" : 4,
+            "scoldings" : 5
+        }
+    ],
+
+    "Rayan": [
+        {
+            "satisfaction" : 60,
+            "commands" : 5,
+            "compliments" : 10,
+            "scoldings" : 0
+        }
+    ],
+
+    "Paul": [
+        {
+            "satisfaction" : 60,
+            "commands" : 5,
+            "compliments" : 0,
+            "scoldings" : 0
+        }
+    ]
+}
