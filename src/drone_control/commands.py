@@ -38,3 +38,43 @@ class Left(Command):
 class Right(Command):
     def __init__(self):
         super().__init__(6)
+
+
+class Up(Command):
+    def __init__(self):
+        super().__init__(7)
+
+
+class Down(Command):
+    def __init__(self):
+        super().__init__(8)
+
+
+class TurnLeft(Command):
+    def __init__(self):
+        super().__init__(9)
+
+
+class TurnRight(Command):
+    def __init__(self):
+        super().__init__(10)
+
+
+class FlipForward(Command):
+    def __init__(self):
+        super().__init__(11)
+
+
+class FlipBackward(Command):
+    def __init__(self):
+        super().__init__(12)
+
+
+class FlipRight(Command):
+    def __init__(self):
+        super().__init__(13)
+
+
+class FlipLeft(Command):
+    def __init__(self):
+        super().__init__(14)
