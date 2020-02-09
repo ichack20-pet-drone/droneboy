@@ -2,6 +2,7 @@ import time
 import json
 import random
 import requests
+from playsound import playsound
 import drone_control as dc
 import drone_control.commands as dc_commands
 from command import Commands as PetCommands
@@ -140,6 +141,7 @@ class Session:
             except: 
                 continue # Check me later
             if c == 'stop':
+                playsound("src/soundfiles/Good_Bye_Female.mp3")
                 break
             
             self.play_data['commands'] += 1
@@ -198,6 +200,7 @@ class Game:
         _send_server_message(msg)
 
         print(f"Starting session with player name: {name}")
+        playsound('src/soundfiles/Good_Morning_Female.mp3')
         session = Session(name, self.command_queue)
         session.session_loop()
 
