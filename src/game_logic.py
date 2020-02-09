@@ -7,7 +7,7 @@ from command import Commands as PetCommands
 
 START_SATISFACTION = 50
 MAX_SATISFACTION = 120
-SERVER_ADDR = "localhost"
+SERVER_ADDR = "http://localhost:23333"
 
 class Session:
     def __init__(self, p_name, command_queue):
@@ -114,6 +114,7 @@ class Session:
             
             self.play_data['commands'] += 1
             self.command_processing(c)
+            # TODO: send command heere
         
         self.controller.send_command(dc_commands.Stop())
 
