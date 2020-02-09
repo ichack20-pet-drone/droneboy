@@ -19,7 +19,7 @@ export default {
   name: "App",
   components: { Main },
   data: () => ({
-    title: "Pet Drone"
+    title: "Tamagucci"
   })
 };
 </script>

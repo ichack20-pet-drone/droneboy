@@ -28,15 +28,25 @@ app.get("/", (req, res) => {
 });
 
 const clients = [];
+let currentStat = {};
+
 io.on("connection", function(socket) {
   console.log(socket.id);
   clients.push(socket.id);
+
+  socket.emit("STAT", { data: currentStat });
 });
 
-app.post("/api", function(req, res) {
+app.post("/api/stats", function(req, res) {
   console.log(req.body);
+  currentStat = req.body;
   clients.forEach(c => {
     io.to(c).emit("UPDATE", { data: req.body });
   });
   res.send("Got it");
+});
+
+app.post("/api/message", function(req, res) {
+  console.log(req.body);
+  res.send("Message");
 });

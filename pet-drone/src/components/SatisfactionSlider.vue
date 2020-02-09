@@ -1,11 +1,20 @@
 <template>
   <div>
     <v-card>
-      <v-card-title>Satisfaction</v-card-title>
+      <v-card-title>Stats</v-card-title>
       <v-card-text>
-        <v-progress-linear v-model="satisfaction" reactive height="30">
-          {{ currentSatisfaction }}%
-        </v-progress-linear>
+        <div>
+          Satisfaction
+          <v-progress-linear v-model="satisfaction" reactive height="30">
+            {{ currentSatisfaction }}%
+          </v-progress-linear>
+        </div>
+        <v-divider />
+        <div>Total Commands: {{ commands }}</div>
+        <v-divider />
+        <div>Compliments: {{ compliments }}</div>
+        <v-divider />
+        <div>Scoldings: {{ scoldings }}</div>
       </v-card-text>
     </v-card>
   </div>
@@ -14,9 +23,12 @@
 <script>
 export default {
   name: "SatisfactionSlider",
-  data: () => ({
-    satisfaction: 50
-  }),
+  props: {
+    satisfaction: { type: Number, required: true },
+    compliments: { type: Number, required: true },
+    scoldings: { type: Number, required: true },
+    commands: { type: Number, required: true }
+  },
   computed: {
     currentSatisfaction() {
       return Math.ceil(this.satisfaction);

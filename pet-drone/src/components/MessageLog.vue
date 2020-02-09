@@ -1,11 +1,16 @@
 <template>
   <div>
-    <v-btn>MsgLog</v-btn>
+    <v-card min-height="500">
+      <v-card-text>{{ msg }}</v-card-text>
+    </v-card>
   </div>
 </template>
 
 <script>
 export default {
-  name: "MessageLog"
+  name: "MessageLog",
+  props: {
+    msg: { type: String, required: true }
+  }
 };
 </script>

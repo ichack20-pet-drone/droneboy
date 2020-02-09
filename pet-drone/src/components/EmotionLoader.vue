@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-card>
-      <v-card-text>
-        <img :src="emotionPic" />
+      <v-card-text align="center">
+        <img :src="emotionPic" style="width: 70%" />
       </v-card-text>
     </v-card>
   </div>
@@ -16,6 +16,9 @@ const sadDrone = require("@/asset/sad_drone.png");
 
 export default {
   name: "EmotionLoader",
+  props: {
+    satisfaction: { type: Number, required: true }
+  },
   data: () => ({
     cuteDrone: cuteDrone,
     happyDrone: happyDrone,
@@ -24,7 +27,15 @@ export default {
   }),
   computed: {
     emotionPic() {
-      return happyDrone;
+      if (this.satisfaction < 25) {
+        return sadDrone;
+      } else if (this.satisfaction < 50) {
+        return indifferentDrone;
+      } else if (this.satisfaction < 75) {
+        return happyDrone;
+      } else {
+        return cuteDrone;
+      }
     }
   }
 };
