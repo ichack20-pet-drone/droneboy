@@ -1,5 +1,6 @@
 import time
 import json
+import random
 import requests
 import drone_control as dc
 import drone_control.commands as dc_commands
@@ -21,6 +22,7 @@ class Session:
     def __init__(self, p_name, command_queue):
         self.player_name = p_name
         self.command_queue = command_queue
+        self.consec_complement = 0
         self.controller = dc.get_drone_controller(mock=True)
         self.pet_commands = PetCommands()
         
@@ -43,6 +45,7 @@ class Session:
             'forward': (dc_commands.Forward, 30),
             'backward': (dc_commands.Backward, 30),
             'land': (dc_commands.Land, 0),
+            'play_dead': (dc_commands.Land, 30),
             'rotate_left': (dc_commands.TurnLeft, 40),
             'rotate_right': (dc_commands.TurnRight, 40),
             'frontflip': (dc_commands.FlipForward, 50),
@@ -63,11 +66,7 @@ class Session:
     def multiply_satisfaction(self, scalar):
         self.play_data['satisfaction'] *= scalar
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
-        self.update_server_stats()
-
-    def update_server_stats(self):
-        requests.post(url = STATS_API, data = self.play_data)
-        pass
+        res = requests.post(url = SERVER_ADDR, data = self.play_data)
 
     def process_basic(self, command):
         # Don't need to do anything
@@ -76,9 +75,17 @@ class Session:
     def process_emotion(self, command):
         family = self.pet_commands.check_family(command)
         if family == 'compliments':
-            self.play_data['compliments'] += 1
-            self.increase_satisfaction(15)
+            self.consec_complement += 1
+            
+            if self.consec_complement > 1 and random.randint(0, 1) == 1:
+                self.play_data['scoldings'] += 1
+                self.multiply_satisfaction(0.6)
+            else:
+                self.play_data['scoldings'] += 1
+                self.increase_satisfaction(15)
+
         if family == 'scoldings':
+            self.consec_complement = False
             self.play_data['scoldings'] += 1
             self.multiply_satisfaction(0.8)
 
@@ -89,8 +96,16 @@ class Session:
         self.decrease_satisfaction(5)
 
     def process_game(self, command):
-        # TODO: do something later
-        pass
+        # Play dead handling code
+        if command == "play_dead":            
+            # Handle the play dead
+            self.process_actions(command)
+            intent = self.command_queue.get(block=True).name
+
+            while (not 'awaken' == intent):
+                intent = self.command_queue.get(block=True).name
+            self.process_actions('takeoff')
+
 
     def command_processing(self, command):
         family_class = self.pet_commands.check_family_class(command)
@@ -99,14 +114,16 @@ class Session:
         if family_class == 'emotion':
             self.process_emotion(command)
         if family_class == 'actions':
+            self.consec_complement = False
             self.process_actions(command)
         if family_class == 'game':
+            self.consec_complement = False
             self.process_game(command)
+        if family_class == 'name':
+            pass
         print(F"Satisfaction: {self.play_data['satisfaction']}")
 
     def session_loop(self):
-        input('Are you ready kids??')
-
         self.start_time = time.time()
         
         # Empty the queue
@@ -127,8 +144,7 @@ class Session:
             
             self.play_data['commands'] += 1
             self.command_processing(c)
-            # TODO: send command heere
-        
+       
         self.controller.send_command(dc_commands.Stop())
 
         # Dump player data into file
@@ -181,6 +197,7 @@ class Game:
         msg = self.generate_greeting(name)
         _send_server_message(msg)
 
+        print(f"Starting session with player name: {name}")
         session = Session(name, self.command_queue)
         session.session_loop()
 
