@@ -8,6 +8,14 @@ from command import Commands as PetCommands
 START_SATISFACTION = 50
 MAX_SATISFACTION = 120
 SERVER_ADDR = "http://localhost:23333/api"
+STATS_API = SERVER_ADDR + "/stats"
+LOG_API = SERVER_ADDR + "/message"
+
+
+def _send_server_message(msg):
+    print(F"Sending: {msg}")
+    requests.post(url = LOG_API, data = {"message": msg})
+
 
 class Session:
     def __init__(self, p_name, command_queue):
@@ -45,17 +53,21 @@ class Session:
     def increase_satisfaction(self, magnitude):
         self.play_data['satisfaction'] += magnitude
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
-        res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        self.update_server_stats()
 
     def decrease_satisfaction(self, magnitude):
         self.play_data['satisfaction'] -= magnitude
         self.play_data['satisfaction'] = max(self.play_data['satisfaction'], 0)
-        res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        self.update_server_stats()
     
     def multiply_satisfaction(self, scalar):
         self.play_data['satisfaction'] *= scalar
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
-        res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        self.update_server_stats()
+
+    def update_server_stats(self):
+        requests.post(url = STATS_API, data = self.play_data)
+        pass
 
     def process_basic(self, command):
         # Don't need to do anything
@@ -107,6 +119,7 @@ class Session:
         while time.time() - self.start_time <= 180:
             try:
                 c = self.command_queue.get(block=False).name
+                _send_server_message(F'Heard command: {c}')
             except: 
                 continue # Check me later
             if c == 'stop':
@@ -126,7 +139,7 @@ class Session:
             json.dump(self.file, jsonfile)
             jsonfile.truncate()
 
-        print('Session over')
+        _send_server_message('Session over')
 
 
 class Game:
@@ -137,6 +150,7 @@ class Game:
         # self.player_data = 
 
     def game_loop(self):
+        _send_server_message('Say "Wake up" to start')
         # pops actions from the queue every x milliseconds and passes them to the existing session
         while True:
             try:
@@ -152,18 +166,65 @@ class Game:
 
     def start_session(self):
         # Starts a session and adds it to the session list once it terminates
-        print("Tell me your name!")
-        intent = self.command_queue.get()
+        _send_server_message("Tell me your name!")
 
-        while(intent.name != "name"):
+        found_name = False
+        while not found_name:
             intent = self.command_queue.get()
+            if intent.name != "name":
+                continue
+            if 'name' not in intent.matches:
+                continue
+            name = intent.matches['name']
+            found_name = True
 
-        name = intent.matches['name']
+        msg = self.generate_greeting(name)
+        _send_server_message(msg)
 
-        print(f"Starting session with player name: {name}")
         session = Session(name, self.command_queue)
         session.session_loop()
-        
+
+        self.session_list.append(session)
+
+    def generate_greeting(self, name):
+        last_session = None
+
+        for s in self.session_list:
+            if s.player_name == name:
+                last_session = s
+
+        if last_session == None:
+            return F"Hi {name}, nice to meet you!"
+
+        last_stats = last_session.play_data
+        # satisfaction, commands, compliments, scoldings
+        if last_stats['satisfaction'] > 80:
+            best_friend = "no one"
+            highest_sat = 0
+            for s in self.session_list:
+                if s.play_data['satisfaction'] >= highest_sat:
+                    best_friend = s.player_name
+
+            if name == best_friend:
+                return F"{name}? Great! You're my best friend!"
+            else:
+                return F"Great to see you again {name}!"
+
+        if last_stats['satisfaction'] < 30:
+            return F"{name}? I was hoping you wouldn't come back"
+
+        if last_stats['compliments'] > 10:
+            return F"Aww {name}, you were so nice to me last time"
+
+        if last_stats['scoldings'] > 5:
+            return F"I don't like you {name}, you're mean"
+
+        if last_stats['commands'] > 10:
+            return F"Hi coach {name}"
+
+        return F"Nice to see you again {name}"
+
+
     def calc_game_stats(self):
         # For twitter stuff after the sessions finish
         pass
