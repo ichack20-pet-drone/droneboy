@@ -163,7 +163,25 @@ class Session:
             json.dump(self.file, jsonfile)
             jsonfile.truncate()
 
-        _send_server_message('Session over')
+        _send_server_message(self.generate_session_summary())
+
+    def generate_session_summary(self):
+        if self.play_data['satisfaction'] > 80:
+            return F"Thanks for the game! I really enjoyed it, see you next time!"
+
+        if self.play_data['satisfaction'] < 30:
+            return F"Finally now I can do something more interesting"
+
+        if self.play_data['compliments'] > 10:
+            return F"Thanks for being so friendly, bye!"
+
+        if self.play_data['scoldings'] > 5:
+            return F"All done, and now I can stop listening to you"
+
+        if self.play_data['commands'] > 10:
+            return "Workout done, now I need a rest"
+
+        return "Thanks for playing, see you later"
 
 
 class Game:
