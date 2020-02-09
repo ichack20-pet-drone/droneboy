@@ -147,7 +147,7 @@ class Session:
             except: 
                 continue # Check me later
             if c == 'stop':
-                playsound("soundfiles/Good_Bye_Female.mp3")
+                playsound("soundfiles/stop.mp3")
                 break
             
             self.play_data['commands'] += 1
@@ -206,7 +206,7 @@ class Game:
         _send_server_message(msg)
 
         print(f"Starting session with player name: {name}")
-        playsound('soundfiles/Good_Morning_Female.mp3')
+        playsound('soundfiles/start.mp3')
         session = Session(name, self.command_queue)
         session.session_loop()
 
