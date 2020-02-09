@@ -126,8 +126,14 @@ class Game:
         print('start_session')      
 
         print("Tell me your name!")
-        # TODO: Query matching HERE
-        name = self.command_queue.get()
+        intent = self.command_queue.get()
+
+        while(intent.name != "name"):
+            intent = self.command_queue.get()
+
+        name = intent.matches['name']
+
+        print(f"Starting session with player name: {name}")
         session = Session(name, self.command_queue)
         session.session_loop()
         

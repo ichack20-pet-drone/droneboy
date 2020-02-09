@@ -12,6 +12,10 @@ class Commands:
             'stop': 'vocab/stop.intent'
         }
 
+        name = {
+            'name': 'vocab/name.intent'
+        }
+
         compliments = {
             'greeting': 'vocab/greeting.intent',
             'praise': 'vocab/praise.intent',
@@ -49,9 +53,9 @@ class Commands:
             'shoot': 'vocab/shoot.intent'
         }
 
-        self.family_list = [startup, stop, compliments, scoldings,
+        self.family_list = [startup, stop, name, compliments, scoldings,
                      movements, rotations, flip, play_dead]
-        self.family_names = ['startup', 'stop', 'compliments', 'scoldings',
+        self.family_names = ['startup', 'stop', 'name', 'compliments', 'scoldings',
                              'movements', 'rotations', 'flip', 'play_dead']
         self.family_class = {
             'startup': 'basic',
