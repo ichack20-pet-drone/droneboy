@@ -31,6 +31,7 @@ class Session:
             self.file = json.load(jsonfile)
 
         self.play_data = {
+            'playerName': self.player_name,
             'satisfaction' : START_SATISFACTION,
             'commands' : 0,
             'compliments' : 0,
@@ -54,6 +55,11 @@ class Session:
             'sideflip': (dc_commands.FlipRight, 50)
         }
 
+        self.update_server_stats()
+
+    def update_server_stats(self):
+        requests.post(url = STATS_API, data = self.play_data)
+
     def increase_satisfaction(self, magnitude):
         self.play_data['satisfaction'] += magnitude
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
@@ -67,7 +73,7 @@ class Session:
     def multiply_satisfaction(self, scalar):
         self.play_data['satisfaction'] *= scalar
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
-        res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        self.update_server_stats()
 
     def process_basic(self, command):
         # Don't need to do anything

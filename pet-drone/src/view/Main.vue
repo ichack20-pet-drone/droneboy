@@ -8,10 +8,10 @@
         Welcome!
       </div>
       <v-row>
-        <v-col>
+        <v-col style="height: 700px">
           <MessageLog class="justify-space-between pa-2" :msg="msg" />
         </v-col>
-        <v-col>
+        <v-col style="height: 700px">
           <EmotionLoader
             class="justify-space-between pa-2"
             :satisfaction="satisfaction"
@@ -23,9 +23,9 @@
             :scoldings="scoldings"
             :commands="commands"
           />
+          <Tips />
         </v-col>
       </v-row>
-      <Tips />
     </v-container>
   </div>
 </template>
@@ -54,7 +54,7 @@ export default {
     commands: 0,
     compliments: 0,
     scoldings: 0,
-    msg: "Hi"
+    msg: ""
   }),
   mounted() {
     socket.on("STAT", data => {
@@ -73,6 +73,10 @@ export default {
       this.commands = data.data.commands;
       this.compliments = data.data.compliments;
       this.scoldings = data.data.scoldings;
+    });
+
+    socket.on("MSG", data => {
+      this.msg += data.data.message + "\n";
     });
   }
 };

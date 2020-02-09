@@ -1,7 +1,15 @@
 <template>
   <div>
-    <v-card min-height="500">
-      <v-card-text>{{ msg }}</v-card-text>
+    <v-card height="670px">
+      <v-card-text>
+        <v-textarea
+          filled
+          readonly
+          rounded
+          :value="msg"
+          height="630px"
+        ></v-textarea>
+      </v-card-text>
     </v-card>
   </div>
 </template>

@@ -48,5 +48,8 @@ app.post("/api/stats", function(req, res) {
 
 app.post("/api/message", function(req, res) {
   console.log(req.body);
-  res.send("Message");
+  clients.forEach(c => {
+    io.to(c).emit("MSG", { data: req.body });
+  });
+  res.send("Message got");
 });
