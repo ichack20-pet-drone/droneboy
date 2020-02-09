@@ -42,7 +42,7 @@ class SpeechDetector:
             if result.is_final:
                 intent = self.command_detector.calc_intent(transcript)
                 print(intent)
-                self.queue.put(intent.name)
+                self.queue.put(intent)
 
     def start_stream(self):
         with MicrophoneStream(self.RATE, self.CHUNK) as stream:

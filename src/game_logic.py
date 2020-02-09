@@ -89,7 +89,7 @@ class Session:
 
         while time.time() - self.start_time <= 180:
             try:
-                c = self.command_queue.get(block=False)
+                c = self.command_queue.get(block=False).name
             except: 
                 continue # Check me later
             if c == 'stop':
@@ -111,17 +111,23 @@ class Game:
         # pops actions from the queue every x milliseconds and passes them to the existing session
         while True:
             try:
-                command = self.command_queue.get(block=False)
+                command = self.command_queue.get(block=False).name
             except: 
                 continue # Check me later
             print(command)
             if (self.commands.check_family(command) == 'startup'):
+                # Flush the queue
+                while not self.command_queue.empty():
+                    self.command_queue.get()
                 self.start_session()
 
     def start_session(self):
         # Starts a session and adds it to the session list once it terminates
-        print('start_session')
-        name = input("Input player name: ")
+        print('start_session')      
+
+        print("Tell me your name!")
+        # TODO: Query matching HERE
+        name = self.command_queue.get()
         session = Session(name, self.command_queue)
         session.session_loop()
         
