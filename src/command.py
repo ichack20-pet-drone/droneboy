@@ -60,6 +60,7 @@ class Commands:
         self.family_class = {
             'startup': 'basic',
             'stop': 'basic',
+            'name' : 'name',
             'compliments': 'emotion',
             'scoldings': 'emotion',
             'movements': 'actions',
