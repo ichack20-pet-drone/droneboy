@@ -7,7 +7,7 @@ from command import Commands as PetCommands
 
 START_SATISFACTION = 50
 MAX_SATISFACTION = 120
-SERVER_ADDR = "http://localhost:23333"
+SERVER_ADDR = "http://localhost:23333/api"
 
 class Session:
     def __init__(self, p_name, command_queue):
@@ -45,17 +45,17 @@ class Session:
     def increase_satisfaction(self, magnitude):
         self.play_data['satisfaction'] += magnitude
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
-        # res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        res = requests.post(url = SERVER_ADDR, data = self.play_data)
 
     def decrease_satisfaction(self, magnitude):
         self.play_data['satisfaction'] -= magnitude
         self.play_data['satisfaction'] = max(self.play_data['satisfaction'], 0)
-        # res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        res = requests.post(url = SERVER_ADDR, data = self.play_data)
     
     def multiply_satisfaction(self, scalar):
         self.play_data['satisfaction'] *= scalar
         self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
-        # res = requests.post(url = SERVER_ADDR, data = self.play_data)
+        res = requests.post(url = SERVER_ADDR, data = self.play_data)
 
     def process_basic(self, command):
         # Don't need to do anything
