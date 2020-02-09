@@ -1,19 +1,31 @@
 import time
 import json
+import requests
 import drone_control as dc
 import drone_control.commands as dc_commands
 from command import Commands as PetCommands
 
 START_SATISFACTION = 50
 MAX_SATISFACTION = 120
+SERVER_ADDR = "localhost"
 
 class Session:
     def __init__(self, p_name, command_queue):
         self.player_name = p_name
         self.command_queue = command_queue
-        self.satisfaction = START_SATISFACTION
         self.controller = dc.get_drone_controller(mock=True)
         self.pet_commands = PetCommands()
+        
+        with open("players.json", "r+") as jsonfile:
+            self.file = json.load(jsonfile)
+
+        self.play_data = {
+            'satisfaction' : START_SATISFACTION,
+            'commands' : 0,
+            'compliments' : 0,
+            'scoldings' : 0
+        }
+
         self.translate_action = {
             'takeoff': (dc_commands.Takeoff, 20),
             'up': (dc_commands.Up, 30),
@@ -31,16 +43,19 @@ class Session:
         }
 
     def increase_satisfaction(self, magnitude):
-        self.satisfaction += magnitude
-        self.satisfaction = min(self.satisfaction, MAX_SATISFACTION)
+        self.play_data['satisfaction'] += magnitude
+        self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
+        # res = requests.post(url = SERVER_ADDR, data = self.play_data)
 
     def decrease_satisfaction(self, magnitude):
-        self.satisfaction -= magnitude
-        self.satisfaction = max(self.satisfaction, 0)
+        self.play_data['satisfaction'] -= magnitude
+        self.play_data['satisfaction'] = max(self.play_data['satisfaction'], 0)
+        # res = requests.post(url = SERVER_ADDR, data = self.play_data)
     
     def multiply_satisfaction(self, scalar):
-        self.satisfaction *= scalar
-        self.satisfaction = min(self.satisfaction, MAX_SATISFACTION)
+        self.play_data['satisfaction'] *= scalar
+        self.play_data['satisfaction'] = min(self.play_data['satisfaction'], MAX_SATISFACTION)
+        # res = requests.post(url = SERVER_ADDR, data = self.play_data)
 
     def process_basic(self, command):
         # Don't need to do anything
@@ -49,13 +64,15 @@ class Session:
     def process_emotion(self, command):
         family = self.pet_commands.check_family(command)
         if family == 'compliments':
+            self.play_data['compliments'] += 1
             self.increase_satisfaction(15)
         if family == 'scoldings':
+            self.play_data['scoldings'] += 1
             self.multiply_satisfaction(0.8)
 
     def process_actions(self, command):
         tr, req = self.translate_action[command]
-        if req <= self.satisfaction:
+        if req <= self.play_data['satisfaction']:
             self.controller.send_command(tr())
         self.decrease_satisfaction(5)
 
@@ -73,7 +90,7 @@ class Session:
             self.process_actions(command)
         if family_class == 'game':
             self.process_game(command)
-        print(F'Satisfaction: {self.satisfaction}')
+        print(F"Satisfaction: {self.play_data['satisfaction']}")
 
     def session_loop(self):
         input('Are you ready kids??')
@@ -95,9 +112,19 @@ class Session:
             if c == 'stop':
                 break
             
+            self.play_data['commands'] += 1
             self.command_processing(c)
         
         self.controller.send_command(dc_commands.Stop())
+
+        # Dump player data into file
+        self.file[self.player_name] = self.play_data
+        
+        with open("players.json", "r+") as jsonfile:
+            jsonfile.seek(0)
+            json.dump(self.file, jsonfile)
+            jsonfile.truncate()
+
         print('Session over')
 
 
@@ -106,6 +133,7 @@ class Game:
         self.session_list = []
         self.command_queue = command_queue
         self.commands = PetCommands()
+        # self.player_data = 
 
     def game_loop(self):
         # pops actions from the queue every x milliseconds and passes them to the existing session
@@ -123,8 +151,6 @@ class Game:
 
     def start_session(self):
         # Starts a session and adds it to the session list once it terminates
-        print('start_session')      
-
         print("Tell me your name!")
         intent = self.command_queue.get()
 
